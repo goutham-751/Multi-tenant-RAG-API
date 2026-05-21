@@ -80,20 +80,7 @@ curl -X POST http://localhost:8000/api/v1/query \
 
 ---
 
-## 📡 API Endpoints
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `GET` | `/health` | ❌ | Health check |
-| `POST` | `/api/v1/tenants/register` | ❌ | Register tenant, get API key |
-| `GET` | `/api/v1/tenants/me` | ✅ | Get tenant metadata |
-| `POST` | `/api/v1/documents` | ✅ | Upload document (PDF/TXT/MD) |
-| `GET` | `/api/v1/documents` | ✅ | List tenant documents |
-| `DELETE` | `/api/v1/documents/{doc_name}` | ✅ | Delete document |
-| `POST` | `/api/v1/query` | ✅ | RAG query |
-| `GET` | `/api/v1/query/usage` | ✅ | Query usage stats |
-
----
 
 ## 🧪 Testing
 

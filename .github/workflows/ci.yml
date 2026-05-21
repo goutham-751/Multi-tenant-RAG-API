@@ -1,0 +1,37 @@
+name: CI — Test Suite
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run test suite
+        env:
+          GROQ_API_KEY: "gsk_test_key_for_ci"
+          SQLITE_DB_PATH: "./test_ci.db"
+          CHROMA_PERSIST_DIR: "./test_chroma_store"
+        run: pytest tests/ -v --tb=short
+
+      - name: Clean up test artifacts
+        if: always()
+        run: |
+          rm -f test_ci.db
+          rm -rf test_chroma_store/

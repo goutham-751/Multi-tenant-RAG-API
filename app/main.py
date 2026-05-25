@@ -170,6 +170,13 @@ async def health_check():
     return {"status": "ok", "version": settings.APP_VERSION}
 
 
+@app.get("/", include_in_schema=False)
+async def root():
+    """Redirect the base URL to the Swagger UI."""
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/docs")
+
+
 # ---------------------------------------------------------------------------
 # Include routers
 # ---------------------------------------------------------------------------

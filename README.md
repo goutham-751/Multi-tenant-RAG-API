@@ -1,3 +1,12 @@
+---
+title: Multi-Tenant RAG API
+emoji: 🚀
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
 # 🚀 Multi-Tenant RAG API
 
 A production-ready SaaS backend that lets any business upload documents and query them using natural language — powered by **Retrieval-Augmented Generation (RAG)**.

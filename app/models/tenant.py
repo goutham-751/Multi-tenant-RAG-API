@@ -21,8 +21,9 @@ class Tenant(SQLModel, table=True):
     """Persistent tenant record in SQLite."""
 
     id: str = Field(default_factory=lambda: str(uuid4()), primary_key=True)
-    name: str = Field(index=True)
-    api_key_hash: str  # bcrypt hash — never expose
+    user_id: str = Field(unique=True, index=True)  # Supabase auth.users.id
+    name: str
+    api_key_hash: Optional[str] = None  # bcrypt hash — generated on demand
     chroma_collection: str  # "tenant_{id_prefix}"
     queries_count: int = Field(default=0)
     is_active: bool = Field(default=True)

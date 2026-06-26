@@ -8,7 +8,7 @@ DELETE /api/v1/documents/{doc_name} — delete a document and its vectors
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 
-from app.core.dependencies import get_current_tenant
+from app.core.dependencies import get_tenant_any
 from app.models.schemas import (
     DocumentDeleteResponse,
     DocumentInfo,
@@ -33,7 +33,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024
 async def upload_document(
     request: Request,
     file: UploadFile = File(..., description="Document file (.pdf, .txt, .md)"),
-    current_tenant: Tenant = Depends(get_current_tenant),
+    current_tenant: Tenant = Depends(get_tenant_any),
 ):
     """Ingest a document: validate → load → chunk → embed → upsert to ChromaDB."""
     # Validate filename
@@ -104,7 +104,7 @@ async def upload_document(
 )
 async def list_documents(
     request: Request,
-    current_tenant: Tenant = Depends(get_current_tenant),
+    current_tenant: Tenant = Depends(get_tenant_any),
 ):
     """Return all documents in the tenant's collection with chunk counts."""
     chroma_client = request.app.state.chroma_client
@@ -133,7 +133,7 @@ async def list_documents(
 async def delete_document(
     doc_name: str,
     request: Request,
-    current_tenant: Tenant = Depends(get_current_tenant),
+    current_tenant: Tenant = Depends(get_tenant_any),
 ):
     """Remove all chunks for a specific document from ChromaDB."""
     chroma_client = request.app.state.chroma_client

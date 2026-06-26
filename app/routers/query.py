@@ -10,7 +10,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlmodel import Session
 
-from app.core.dependencies import get_current_tenant
+from app.core.dependencies import get_tenant_any
 from app.db import get_session
 from app.models.schemas import (
     QueryRequest,
@@ -36,7 +36,7 @@ async def query_documents(
     body: QueryRequest,
     request: Request,
     response: Response,
-    current_tenant: Tenant = Depends(get_current_tenant),
+    current_tenant: Tenant = Depends(get_tenant_any),
     session: Session = Depends(get_session),
 ):
     """
@@ -95,7 +95,7 @@ async def query_documents(
     description="Returns query statistics for the authenticated tenant.",
 )
 async def query_usage(
-    current_tenant: Tenant = Depends(get_current_tenant),
+    current_tenant: Tenant = Depends(get_tenant_any),
 ):
     """Return cache hit rate, average latency, and total queries."""
     return UsageResponse(

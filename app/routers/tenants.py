@@ -1,11 +1,11 @@
 """
 Tenant router — registration and tenant info.
 
-POST /api/v1/tenants/register — public, no auth required
-GET  /api/v1/tenants/me       — authenticated, returns tenant metadata
+GET  /api/v1/tenants/me         — authenticated (JWT), returns tenant metadata
+POST /api/v1/tenants/me/api-key — authenticated (JWT), generates a developer API key
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
 from app.core.dependencies import get_current_tenant
@@ -13,33 +13,15 @@ from app.db import get_session
 from app.models.tenant import (
     Tenant,
     TenantInfoResponse,
-    TenantRegisterRequest,
-    TenantRegisterResponse,
 )
-from app.services.tenant_service import create_tenant
+from app.services.tenant_service import generate_api_key_for_tenant
+from pydantic import BaseModel
+
+class NewAPIKeyResponse(BaseModel):
+    api_key: str
+    message: str = "Store your API key safely — it will not be shown again."
 
 router = APIRouter(prefix="/api/v1/tenants", tags=["Tenants"])
-
-
-@router.post(
-    "/register",
-    response_model=TenantRegisterResponse,
-    summary="Register a new tenant",
-    description="Register a new tenant and receive a one-time API key.",
-)
-async def register_tenant(
-    body: TenantRegisterRequest,
-    session: Session = Depends(get_session),
-):
-    """Create a new tenant, return the API key (shown only once)."""
-    tenant, plain_key = create_tenant(name=body.name, session=session)
-
-    return TenantRegisterResponse(
-        tenant_id=tenant.id,
-        name=tenant.name,
-        api_key=plain_key,
-        chroma_collection=tenant.chroma_collection,
-    )
 
 
 @router.get(
@@ -60,3 +42,45 @@ async def get_me(
         is_active=current_tenant.is_active,
         created_at=current_tenant.created_at,
     )
+
+
+@router.post(
+    "/me/api-key",
+    response_model=NewAPIKeyResponse,
+    summary="Generate a developer API key",
+    description="Generates a new API key for external tool usage. Invalidates any old key.",
+)
+async def generate_api_key(
+    current_tenant: Tenant = Depends(get_current_tenant),
+    session: Session = Depends(get_session),
+):
+    """Generate and return a new API key."""
+    plain_key = generate_api_key_for_tenant(current_tenant, session)
+    return NewAPIKeyResponse(api_key=plain_key)
+
+
+@router.get(
+    "/all",
+    response_model=list[TenantInfoResponse],
+    summary="Get all tenants (Superadmin only)",
+)
+async def get_all_tenants_endpoint(
+    current_tenant: Tenant = Depends(get_current_tenant),
+    session: Session = Depends(get_session),
+):
+    from fastapi import HTTPException
+    if current_tenant.name != "superadmin@email.com":
+        raise HTTPException(status_code=403, detail="Superadmin access required")
+    from app.services.tenant_service import get_all_tenants
+    tenants = get_all_tenants(session)
+    return [
+        TenantInfoResponse(
+            tenant_id=t.id,
+            name=t.name,
+            chroma_collection=t.chroma_collection,
+            queries_count=t.queries_count,
+            is_active=t.is_active,
+            created_at=t.created_at,
+        )
+        for t in tenants
+    ]

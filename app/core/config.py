@@ -19,6 +19,12 @@ class Settings(BaseSettings):
 
     # --- Required ---
     GROQ_API_KEY: str = "gsk_placeholder"
+    
+    # --- Supabase & Database ---
+    SUPABASE_URL: str = "https://placeholder.supabase.co"
+    SUPABASE_ANON_KEY: str = "placeholder_anon_key"
+    SUPABASE_JWT_SECRET: str = "placeholder_jwt_secret"
+    DATABASE_URL: str = "postgresql://placeholder"
 
     # --- LLM ---
     GROQ_MODEL: str = "llama-3.3-70b-versatile"

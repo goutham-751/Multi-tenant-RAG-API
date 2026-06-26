@@ -9,12 +9,10 @@ from sqlmodel import Session, SQLModel, create_engine
 
 from app.core.config import settings
 
-# SQLite engine — single file, no server required
-_sqlite_url = f"sqlite:///{settings.SQLITE_DB_PATH}"
+# Postgres engine using psycopg2
 engine = create_engine(
-    _sqlite_url,
+    settings.DATABASE_URL,
     echo=False,
-    connect_args={"check_same_thread": False},  # Required for SQLite + FastAPI
 )
 
 

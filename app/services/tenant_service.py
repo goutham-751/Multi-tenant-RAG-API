@@ -11,20 +11,20 @@ from app.core.security import generate_api_key, hash_api_key, verify_api_key
 from app.models.tenant import Tenant
 
 
-def create_tenant(name: str, session: Session) -> tuple[Tenant, str]:
-    """
-    Register a new tenant.
+def get_tenant_by_user_id(user_id: str, session: Session) -> Tenant | None:
+    """Look up a tenant by Supabase user_id."""
+    statement = select(Tenant).where(Tenant.user_id == user_id)
+    return session.exec(statement).first()
 
-    Returns (Tenant, plain_api_key). The plain key is returned only once
-    and must be shown to the user immediately — it's never stored.
-    """
-    plain_key = generate_api_key()
-    hashed_key = hash_api_key(plain_key)
 
+def create_tenant_for_user(user_id: str, name: str, session: Session) -> Tenant:
+    """
+    Register a new tenant automatically for a first-time user.
+    """
     tenant = Tenant(
+        user_id=user_id,
         name=name,
-        api_key_hash=hashed_key,
-        chroma_collection=f"tenant_{name.lower().replace(' ', '_').replace('-', '_')}_{Tenant.__name__}",
+        chroma_collection="", # Set below
     )
     # Use a shorter, cleaner collection name based on the tenant ID prefix
     tenant.chroma_collection = f"tenant_{tenant.id[:8]}"
@@ -33,7 +33,22 @@ def create_tenant(name: str, session: Session) -> tuple[Tenant, str]:
     session.commit()
     session.refresh(tenant)
 
-    return tenant, plain_key
+    return tenant
+
+
+def generate_api_key_for_tenant(tenant: Tenant, session: Session) -> str:
+    """
+    Generate a new API key for a tenant, save its hash, and return the plain key.
+    """
+    plain_key = generate_api_key()
+    hashed_key = hash_api_key(plain_key)
+
+    tenant.api_key_hash = hashed_key
+    session.add(tenant)
+    session.commit()
+    session.refresh(tenant)
+
+    return plain_key
 
 
 def get_tenant_by_api_key(api_key: str, session: Session) -> Tenant | None:
@@ -42,11 +57,11 @@ def get_tenant_by_api_key(api_key: str, session: Session) -> Tenant | None:
 
     Uses bcrypt constant-time comparison. Returns None if no match found.
     """
-    statement = select(Tenant)
+    statement = select(Tenant).where(Tenant.api_key_hash != None)
     tenants = session.exec(statement).all()
 
     for tenant in tenants:
-        if verify_api_key(api_key, tenant.api_key_hash):
+        if tenant.api_key_hash and verify_api_key(api_key, tenant.api_key_hash):
             return tenant
 
     return None
@@ -55,6 +70,12 @@ def get_tenant_by_api_key(api_key: str, session: Session) -> Tenant | None:
 def get_tenant_by_id(tenant_id: str, session: Session) -> Tenant | None:
     """Look up a tenant by ID."""
     return session.get(Tenant, tenant_id)
+
+
+def get_all_tenants(session: Session) -> list[Tenant]:
+    """Look up all tenants."""
+    statement = select(Tenant)
+    return session.exec(statement).all()
 
 
 def increment_queries(tenant: Tenant, session: Session) -> None:

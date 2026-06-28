@@ -88,7 +88,7 @@ async def get_current_tenant(
 
 async def get_tenant_from_api_key(
     request: Request,
-    x_api_key: Optional[str] = Header(None, description="Tenant API key (sk-...)"),
+    x_api_key: Optional[str] = Header(default=None, alias="x-api-key", description="Tenant API key (sk-...)"),
     session: Session = Depends(get_session),
 ) -> Tenant:
     """
@@ -115,7 +115,7 @@ async def get_tenant_from_api_key(
 async def get_tenant_any(
     request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    x_api_key: Optional[str] = Header(None, description="Tenant API key (sk-...)"),
+    x_api_key: Optional[str] = Header(default=None, alias="x-api-key", description="Tenant API key (sk-...)"),
     session: Session = Depends(get_session),
 ) -> Tenant:
     """

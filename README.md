@@ -1,12 +1,3 @@
----
-title: Multi-Tenant RAG API & Dashboard
-emoji: 🚀
-colorFrom: blue
-colorTo: purple
-sdk: docker
-pinned: false
----
-
 # 🚀 Multi-Tenant RAG Platform
 
 A production-ready SaaS full-stack platform that lets any business upload documents and query them using natural language — powered by **Retrieval-Augmented Generation (RAG)**.

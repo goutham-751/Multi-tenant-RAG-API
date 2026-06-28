@@ -77,3 +77,9 @@ node_modules/
 authprd.md
 ui_uxprd.md
 prd.md
+
+# Env files
+.env
+.env.*
+!.env.example
+frontend/.env

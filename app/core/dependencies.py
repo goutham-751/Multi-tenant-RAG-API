@@ -54,24 +54,27 @@ async def get_current_tenant(
         )
     
     token = credentials.credentials
+    from supabase import create_client, Client
+    
+    # Initialize supabase client once (could also be global, but lightweight enough here)
+    supabase_client: Client = create_client(
+        settings.SUPABASE_URL, 
+        settings.SUPABASE_ANON_KEY
+    )
+    
     try:
-        # Decode JWT using Supabase JWT secret
-        payload = jwt.decode(
-            token,
-            settings.SUPABASE_JWT_SECRET,
-            algorithms=["HS256"],
-            audience="authenticated"
-        )
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        # get_user automatically validates the JWT with the Supabase Auth server
+        user_response = supabase_client.auth.get_user(token)
+        user = user_response.user
+        if not user:
+            raise ValueError("No user returned")
+            
+        user_id = user.id
+        email = user.email or "unknown_user"
         
-    user_id = payload.get("sub")
-    email = payload.get("email", "unknown_user")
-
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Invalid token payload")
+    except Exception as e:
+        print("Supabase Auth Verification Error:", e)
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     # Look up tenant by user_id
     tenant = get_tenant_by_user_id(user_id, session)

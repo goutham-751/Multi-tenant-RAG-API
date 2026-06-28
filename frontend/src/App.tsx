@@ -5,6 +5,7 @@ import { SuperAdminDashboard } from './components/SuperAdminDashboard'
 import { useTenantStore } from './store/useTenantStore'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { supabase } from './lib/supabase'
+import { AnimatePresence, motion } from 'framer-motion'
 
 const queryClient = new QueryClient()
 
@@ -14,7 +15,7 @@ function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        fetchTenantInfo(session.access_token, session.user.email === 'superadmin@email.com')
+        fetchTenantInfo(session.access_token, session.user.email === (import.meta.env.VITE_SUPERADMIN_EMAIL || 'superadmin@email.com'))
       }
     })
 
@@ -22,7 +23,7 @@ function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        fetchTenantInfo(session.access_token, session.user.email === 'superadmin@email.com')
+        fetchTenantInfo(session.access_token, session.user.email === (import.meta.env.VITE_SUPERADMIN_EMAIL || 'superadmin@email.com'))
       } else {
         clearTenant()
       }
@@ -33,7 +34,8 @@ function App() {
 
   const fetchTenantInfo = async (token: string, isAdmin: boolean) => {
     try {
-      const res = await fetch('http://localhost:8001/api/v1/tenants/me', {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001'
+      const res = await fetch(`${API_URL}/api/v1/tenants/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -51,14 +53,40 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-subtle font-sans text-text-primary antialiased">
-        {!tenantId || !sessionToken ? (
-          <Onboarding onComplete={() => {}} />
-        ) : isSuperadmin ? (
-          <SuperAdminDashboard />
-        ) : (
-          <Dashboard />
-        )}
+      <div className="min-h-screen bg-base font-sans text-text-primary antialiased">
+        <AnimatePresence mode="wait">
+          {!tenantId || !sessionToken ? (
+            <motion.div
+              key="onboarding"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Onboarding onComplete={() => {}} />
+            </motion.div>
+          ) : isSuperadmin ? (
+            <motion.div
+              key="superadmin"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <SuperAdminDashboard />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="dashboard"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Dashboard />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </QueryClientProvider>
   )

@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
 
     # Create database tables
     create_db_and_tables()
-    logger.info("SQLite database initialized at %s", settings.SQLITE_DB_PATH)
+    logger.info("Postgres database initialized from DATABASE_URL")
 
     # Initialize ChromaDB client
     app.state.chroma_client = get_chroma_client()

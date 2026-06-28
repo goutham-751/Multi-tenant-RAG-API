@@ -18,6 +18,8 @@ from sqlmodel import Field, SQLModel
 
 
 class Tenant(SQLModel, table=True):
+    __tablename__ = "tenants"
+
     """Persistent tenant record in SQLite."""
 
     id: str = Field(default_factory=lambda: str(uuid4()), primary_key=True)

@@ -35,7 +35,7 @@ async def get_me(
 ):
     """Return the authenticated tenant's metadata."""
     return TenantInfoResponse(
-        tenant_id=current_tenant.id,
+        tenant_id=str(current_tenant.id),
         name=current_tenant.name,
         chroma_collection=current_tenant.chroma_collection,
         queries_count=current_tenant.queries_count,
@@ -75,7 +75,7 @@ async def get_all_tenants_endpoint(
     tenants = get_all_tenants(session)
     return [
         TenantInfoResponse(
-            tenant_id=t.id,
+            tenant_id=str(t.id),
             name=t.name,
             chroma_collection=t.chroma_collection,
             queries_count=t.queries_count,

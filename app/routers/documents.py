@@ -118,7 +118,7 @@ async def list_documents(
     total_chunks = sum(d["chunk_count"] for d in docs)
 
     return DocumentListResponse(
-        tenant_id=current_tenant.id,
+        tenant_id=str(current_tenant.id),
         documents=documents,
         total_chunks=total_chunks,
     )

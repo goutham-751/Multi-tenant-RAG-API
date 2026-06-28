@@ -99,7 +99,7 @@ async def query_usage(
 ):
     """Return cache hit rate, average latency, and total queries."""
     return UsageResponse(
-        tenant_id=current_tenant.id,
+        tenant_id=str(current_tenant.id),
         queries_today=current_tenant.queries_count,
         cache_hit_rate=query_cache.hit_rate,
         avg_latency_ms=query_cache.avg_latency_ms,

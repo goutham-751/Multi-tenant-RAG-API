@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Users, LogOut, Database, Activity, Sparkles, Shield } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Users, LogOut, Database, Activity, Shield } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTenantStore } from '../store/useTenantStore'
 import { CardContent, CardHeader, CardTitle } from './ui/card'

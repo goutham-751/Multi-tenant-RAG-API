@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Card } from './ui/card'
+import { useState, useRef, useEffect } from 'react'
+
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'

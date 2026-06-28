@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Onboarding } from './components/Onboarding'
 import { Dashboard } from './components/Dashboard'
 import { SuperAdminDashboard } from './components/SuperAdminDashboard'

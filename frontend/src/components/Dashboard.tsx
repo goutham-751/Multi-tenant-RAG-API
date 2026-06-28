@@ -60,7 +60,7 @@ export function Dashboard() {
             <div className="w-7 h-7 rounded-lg bg-accent-primary/10 border border-accent-primary/20 flex items-center justify-center">
               <Sparkles size={14} className="text-accent-primary" />
             </div>
-            <span className="font-semibold text-sm text-text-primary tracking-tight">Trendverse RAG</span>
+            <span className="font-semibold text-sm text-text-primary tracking-tight">Ragnium RAG</span>
           </div>
         </div>
 

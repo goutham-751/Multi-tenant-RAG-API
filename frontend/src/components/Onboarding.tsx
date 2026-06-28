@@ -295,7 +295,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
               transition={{ delay: 1.2 }}
               className="text-center text-xs text-text-tertiary mt-6"
             >
-              Powered by Trendverse RAG Engine
+              Powered by Ragnium RAG Engine
             </motion.p>
           </motion.div>
         </motion.div>
